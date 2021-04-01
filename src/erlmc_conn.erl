@@ -29,6 +29,9 @@
 
 -include("erlmc.hrl").
 
+
+-define(EXTRA_KEY, 16#0:32).
+
 %% gen_server callbacks
 -export([start_link/1, init/1, handle_call/3, handle_cast/2, 
 	     handle_info/2, terminate/2, code_change/3]).
@@ -79,7 +82,7 @@ handle_call({get, Key}, _From, Socket) ->
 	end;
     
 handle_call({add, Key, Value, Expiration}, _From, Socket) ->
-    case send_recv(Socket, #request{op_code=?OP_Add, extras = <<16#deadbeef:32, Expiration:32>>, key=list_to_binary(Key), value=Value}) of
+    case send_recv(Socket, #request{op_code=?OP_Add, extras = <<?EXTRA_KEY, Expiration:32>>, key=list_to_binary(Key), value=Value}) of
 		{error, Err} ->
 			{stop, Err, {error, Err}, Socket};
 		Resp ->
@@ -87,7 +90,7 @@ handle_call({add, Key, Value, Expiration}, _From, Socket) ->
 	end;
     
 handle_call({set, Key, Value, Expiration}, _From, Socket) ->
-	case send_recv(Socket, #request{op_code=?OP_Set, extras = <<16#deadbeef:32, Expiration:32>>, key=list_to_binary(Key), value=Value}) of
+	case send_recv(Socket, #request{op_code=?OP_Set, extras = <<?EXTRA_KEY, Expiration:32>>, key=list_to_binary(Key), value=Value}) of
 		{error, Err} ->
 			{stop, Err, {error, Err}, Socket};
 		Resp ->
@@ -95,7 +98,7 @@ handle_call({set, Key, Value, Expiration}, _From, Socket) ->
 	end;
 
 handle_call({replace, Key, Value, Expiration}, _From, Socket) ->
-	case send_recv(Socket, #request{op_code=?OP_Replace, extras = <<16#deadbeef:32, Expiration:32>>, key=list_to_binary(Key), value=Value}) of
+	case send_recv(Socket, #request{op_code=?OP_Replace, extras = <<?EXTRA_KEY, Expiration:32>>, key=list_to_binary(Key), value=Value}) of
 		{error, Err} ->
 			{stop, Err, {error, Err}, Socket};
 		Resp ->
